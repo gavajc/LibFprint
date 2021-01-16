@@ -1,0 +1,137 @@
+From: Juan Carlos García Vázquez <gavajc@gmail.com>
+Date: Tue, 24 Nov 2020 00:10:29 +0700
+Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.1
+
+--- examples/enroll.c	2020-12-09 04:30:53.000000000 -0800
++++ examples/enroll.c	2020-02-10 03:20:25.000000000 -0800
+@@ -1,6 +1,6 @@
+ /*
+  * Example fingerprint enrollment program
+- * Enrolls your chosen finger and saves the print to disk
++ * Enrolls your choosen finger and saves the print to disk
+  * Copyright (C) 2007 Daniel Drake <dsd@gentoo.org>
+  * Copyright (C) 2019 Marco Trevisan <marco.trevisan@canonical.com>
+  *
+@@ -23,25 +23,20 @@
+ 
+ #include <stdio.h>
+ #include <libfprint/fprint.h>
+-#include <glib-unix.h>
+ 
+ #include "storage.h"
+ #include "utilities.h"
+ 
+ typedef struct _EnrollData
+ {
+-  GMainLoop    *loop;
+-  GCancellable *cancellable;
+-  unsigned int  sigint_handler;
+-  FpFinger      finger;
+-  int           ret_value;
++  GMainLoop *loop;
++  FpFinger   finger;
++  int        ret_value;
+ } EnrollData;
+ 
+ static void
+ enroll_data_free (EnrollData *enroll_data)
+ {
+-  g_clear_handle_id (&enroll_data->sigint_handler, g_source_remove);
+-  g_clear_object (&enroll_data->cancellable);
+   g_main_loop_unref (enroll_data->loop);
+   g_free (enroll_data);
+ }
+@@ -57,7 +52,7 @@
+   fp_device_close_finish (dev, res, &error);
+ 
+   if (error)
+-    g_warning ("Failed closing device %s", error->message);
++    g_warning ("Failed closing device %s\n", error->message);
+ 
+   g_main_loop_quit (enroll_data->loop);
+ }
+@@ -76,24 +71,20 @@
+     {
+       enroll_data->ret_value = EXIT_SUCCESS;
+ 
+-      if (fp_device_has_storage (dev))
+-        g_debug ("Device has storage, saving a print reference locally");
+-      else
+-        g_debug ("Device has not storage, saving print only locally");
+-
+-      /* Even if the device has storage, it may not be able to save all the
+-       * metadata that the print contains, so we can always save a local copy
+-       * containing the handle to the device print */
+-      int r = print_data_save (print, enroll_data->finger);
+-      if (r < 0)
++      if (!fp_device_has_storage (dev))
+         {
+-          g_warning ("Data save failed, code %d", r);
+-          enroll_data->ret_value = EXIT_FAILURE;
++          g_debug ("Device has not storage, saving locally");
++          int r = print_data_save (print, enroll_data->finger);
++          if (r < 0)
++            {
++              g_warning ("Data save failed, code %d", r);
++              enroll_data->ret_value = EXIT_FAILURE;
++            }
+         }
+     }
+   else
+     {
+-      g_warning ("Enroll failed with error %s", error->message);
++      g_warning ("Enroll failed with error %s\n", error->message);
+     }
+ 
+   fp_device_close (dev, NULL, (GAsyncReadyCallback) on_device_closed,
+@@ -116,7 +107,7 @@
+       return;
+     }
+ 
+-  if (print && fp_print_get_image (print) &&
++  if (fp_device_supports_capture (device) &&
+       print_image_save (print, "enrolled.pgm"))
+     printf ("Wrote scanned image to enrolled.pgm\n");
+ 
+@@ -146,22 +137,11 @@
+   printf ("Scan your finger now.\n");
+ 
+   print_template = print_create_template (dev, enroll_data->finger);
+-  fp_device_enroll (dev, print_template, enroll_data->cancellable,
+-                    on_enroll_progress, NULL, NULL,
+-                    (GAsyncReadyCallback) on_enroll_completed,
++  fp_device_enroll (dev, print_template, NULL, on_enroll_progress, NULL,
++                    NULL, (GAsyncReadyCallback) on_enroll_completed,
+                     enroll_data);
+ }
+ 
+-static gboolean
+-sigint_cb (void *user_data)
+-{
+-  EnrollData *enroll_data = user_data;
+-
+-  g_cancellable_cancel (enroll_data->cancellable);
+-
+-  return G_SOURCE_CONTINUE;
+-}
+-
+ int
+ main (void)
+ {
+@@ -208,15 +188,8 @@
+   enroll_data->finger = finger;
+   enroll_data->ret_value = EXIT_FAILURE;
+   enroll_data->loop = g_main_loop_new (NULL, FALSE);
+-  enroll_data->cancellable = g_cancellable_new ();
+-  enroll_data->sigint_handler = g_unix_signal_add_full (G_PRIORITY_HIGH,
+-                                                        SIGINT,
+-                                                        sigint_cb,
+-                                                        enroll_data,
+-                                                        NULL);
+ 
+-  fp_device_open (dev, enroll_data->cancellable,
+-                  (GAsyncReadyCallback) on_device_opened,
++  fp_device_open (dev, NULL, (GAsyncReadyCallback) on_device_opened,
+                   enroll_data);
+ 
+   g_main_loop_run (enroll_data->loop);

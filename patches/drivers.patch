@@ -1,0 +1,126 @@
+From: Juan Carlos García Vázquez <gavajc@gmail.com>
+Date: Tue, 24 Nov 2020 00:10:29 +0700
+Subject: [PATCH] Drivers: Remove cross compilation warnings with size_t variables format.
+
+--- libfprint/drivers/aesx660.c	2020-02-10 03:20:25.000000000 -0800
++++ libfprint/drivers/aesx660.c	2020-11-23 13:37:39.207473700 -0800
+@@ -365,7 +365,7 @@
+       return;
+     }
+ 
+-  fp_dbg ("Got %lu bytes of data", actual_length);
++  fp_dbg ("Got %zu bytes of data", actual_length);
+   while (actual_length)
+     {
+       gssize payload_length;
+@@ -384,7 +384,7 @@
+ 
+       payload_length = priv->stripe_packet->data[AESX660_RESPONSE_SIZE_LSB_OFFSET] +
+                        (priv->stripe_packet->data[AESX660_RESPONSE_SIZE_MSB_OFFSET] << 8);
+-      fp_dbg ("Got frame, type %.2x payload of size %.4lx",
++      fp_dbg ("Got frame, type %.2x payload of size %.4zx",
+               priv->stripe_packet->data[AESX660_RESPONSE_TYPE_OFFSET],
+               payload_length);
+ 
+@@ -441,7 +441,7 @@
+       break;
+ 
+     case CAPTURE_SET_IDLE:
+-      fp_dbg ("Got %lu frames", priv->strips_len);
++      fp_dbg ("Got %zu frames", priv->strips_len);
+       aesX660_send_cmd (ssm, _dev, set_idle_cmd, sizeof (set_idle_cmd),
+                         capture_set_idle_cmd_cb);
+       break;
+
+--- libfprint/drivers/upeksonly.c	2020-02-10 03:20:25.000000000 -0800
++++ libfprint/drivers/upeksonly.c	2020-11-23 13:40:19.066870000 -0800
+@@ -214,7 +214,7 @@
+ 
+   self->rows = g_slist_reverse (self->rows);
+ 
+-  fp_dbg ("%lu rows", self->num_rows);
++  fp_dbg ("%zu rows", self->num_rows);
+   img = fpi_assemble_lines (&self->assembling_ctx, self->rows, self->num_rows);
+ 
+   g_slist_free_full (self->rows, g_free);
+@@ -294,7 +294,7 @@
+           if (self->num_blank > FINGER_REMOVED_THRESHOLD)
+             {
+               self->finger_state = FINGER_REMOVED;
+-              fp_dbg ("detected finger removal. Blank rows: %d, Full rows: %lu",
++              fp_dbg ("detected finger removal. Blank rows: %d, Full rows: %zu",
+                       self->num_blank, self->num_rows);
+               handoff_img (dev);
+               return;
+
+--- libfprint/drivers/upektc.c	2020-02-10 03:20:25.000000000 -0800
++++ libfprint/drivers/upektc.c	2020-11-23 13:43:24.244633200 -0800
+@@ -411,7 +411,7 @@
+       break;
+ 
+     default:
+-      fp_err ("Device variant %lu is not known", driver_data);
++      fp_err ("Device variant %zu is not known", driver_data);
+       g_assert_not_reached ();
+       fpi_image_device_open_complete (dev, fpi_device_error_new (FP_DEVICE_ERROR_GENERAL));
+       return;
+
+--- libfprint/drivers/upektc_img.c	2020-02-10 03:20:25.000000000 -0800
++++ libfprint/drivers/upektc_img.c	2020-11-23 13:03:05.992777100 -0800
+@@ -220,7 +220,7 @@
+       response_size += 9;           /* 7 bytes for header, 2 for CRC */
+       if (response_size > transfer->actual_length)
+         {
+-          fp_dbg ("response_size is %lu, actual_length is %d",
++          fp_dbg ("response_size is %zu, actual_length is %d",
+                   response_size, (gint) transfer->actual_length);
+           fp_dbg ("Waiting for rest of transfer");
+           BUG_ON (self->response_rest);
+@@ -308,7 +308,7 @@
+             upektc_img_process_image_frame (self->image_bits + self->image_size,
+                                             data);
+           BUG_ON (self->image_size != IMAGE_SIZE);
+-          fp_dbg ("Image size is %lu",
++          fp_dbg ("Image size is %zu",
+                   self->image_size);
+           img = fp_image_new (IMAGE_WIDTH, IMAGE_HEIGHT);
+           img->flags |= FPI_IMAGE_PARTIAL;
+
+--- libfprint/drivers/upekts.c	2020-02-10 03:20:25.000000000 -0800
++++ libfprint/drivers/upekts.c	2020-11-23 13:45:46.737799600 -0800
+@@ -365,7 +365,7 @@
+       fp_err ("async msg read too short (%d)",
+               (gint) transfer->actual_length);
+       error = fpi_device_error_new_msg (FP_DEVICE_ERROR_PROTO,
+-                                        "Packet from device was too short (%lu)",
++                                        "Packet from device was too short (%zu)",
+                                         transfer->actual_length);
+       goto err;
+     }
+@@ -992,7 +992,7 @@
+ 
+   if (data_len != 14)
+     {
+-      fp_err ("received 3001 poll response of %lu bytes?", data_len);
++      fp_err ("received 3001 poll response of %zu bytes?", data_len);
+       do_enroll_stop (dev, NULL,
+                       fpi_device_error_new_msg (FP_DEVICE_ERROR_PROTO,
+                                                 "received 3001 response with wrong length"));
+@@ -1089,7 +1089,7 @@
+ 
+   if (data_len < sizeof (scan_comp))
+     {
+-      fp_err ("fingerprint data too short (%lu bytes)", data_len);
++      fp_err ("fingerprint data too short (%zu bytes)", data_len);
+       error = fpi_device_error_new_msg (FP_DEVICE_ERROR_PROTO, "fingerprint data too short");
+     }
+   else if (memcmp (data, scan_comp, sizeof (scan_comp)) != 0)
+@@ -1317,7 +1317,7 @@
+ 
+   if (data_len != 14)
+     {
+-      fp_warn ("received 3001 poll response of %lu bytes?", data_len);
++      fp_warn ("received 3001 poll response of %zu bytes?", data_len);
+       error = fpi_device_error_new (FP_DEVICE_ERROR_PROTO);
+       goto out;
+     }

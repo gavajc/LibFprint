@@ -1,0 +1,31 @@
+:: GENERAL DEPENDS
+copy C:\Develop\MSYS2\mingw64\bin\libglib-2.0-0.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libgobject-2.0-0.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libintl-8.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libwinpthread-1.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libpcre-1.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libffi-7.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libgio-2.0-0.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libgusb-2.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\nss3.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libpixman-1-0.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libiconv-2.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\zlib1.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libgmodule-2.0-0.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libssp-0.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libusb-1.0.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\nssutil3.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libnspr4.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libplc4.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libplds4.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\libgcc_s_seh-1.dll C:\Dependencies\
+
+:: SSL DEPENDS
+copy C:\Develop\MSYS2\mingw64\bin\freebl3.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\nssckbi.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\smime3.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\softokn3.dll C:\Dependencies\
+copy C:\Develop\MSYS2\mingw64\bin\ssl3.dll C:\Dependencies\
+
+:: SQLITE DEPENDS
+copy C:\Develop\MSYS2\mingw64\bin\libsqlite3-0.dll C:\Dependencies\

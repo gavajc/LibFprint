@@ -1,0 +1,17 @@
+From: Juan Carlos García Vázquez <gavajc@gmail.com>
+Date: Tue, 24 Nov 2020 00:10:29 +0700
+Subject: [PATCH] Drivers API: Add include files used for suppress compilation warnings
+
+--- libfprint/drivers_api.h	2020-02-10 03:20:25.000000000 -0800
++++ libfprint/drivers_api.h	2020-11-23 21:24:27.152912900 -0800
+@@ -19,6 +19,10 @@
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+  */
+ 
++#include <stdlib.h>
++#include <stdarg.h>
++#include <stdint.h>
++
+ #pragma once
+ 
+ #include "fpi-compat.h"

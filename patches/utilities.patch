@@ -1,0 +1,67 @@
+From: Juan Carlos García Vázquez <gavajc@gmail.com>
+Date: Tue, 24 Nov 2020 00:10:29 +0700
+Subject: [PATCH] Utilities: Add portable wrapper for setenv function
+
+--- examples/utilities.h	2020-02-10 03:20:25.000000000 -0800
++++ examples/utilities.h	2020-11-23 14:21:42.520721500 -0800
+@@ -17,9 +17,19 @@
+  * License along with this library; if not, write to the Free Software
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+  */
++#ifndef _UTILITIES_H
++#define _UTILITIES_H
++
++#include <stdlib.h>
+ 
+ #pragma once
+ 
+ FpDevice * discover_device (GPtrArray *devices);
+ FpFinger finger_chooser (void);
+ const char * finger_to_string (FpFinger finger);
++
++#ifdef __MSYS__
++int setenv(const char *name, const char *value, int overwrite);
++#endif
++
++#endif
+
+--- examples/utilities.c	2020-02-10 03:20:25.000000000 -0800
++++ examples/utilities.c	2020-11-23 14:48:45.235620700 -0800
+@@ -125,3 +125,37 @@
+ 
+   return i;
+ }
++
++#ifdef __MSYS__
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++#include <sec_api/stdlib_s.h>
++
++errno_t getenv_s(
++    size_t     *ret_required_buf_size,
++    char       *buf,
++    size_t      buf_size_in_bytes,
++    const char *name
++);
++
++#ifdef __cplusplus
++}
++#endif
++
++int setenv(const char *name, const char *value, int overwrite)
++{
++    int errcode = 0;
++    
++    if(!overwrite)
++    {
++        size_t envsize = 0;
++        errcode = getenv_s(&envsize, NULL, 0, name);
++        if (errcode || envsize)
++            return errcode;
++    }
++    
++    return _putenv_s(name, value);
++}
++#endif

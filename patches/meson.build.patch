@@ -1,0 +1,66 @@
+From: Juan Carlos García Vázquez <gavajc@gmail.com>
+Date: Tue, 24 Nov 2020 00:10:29 +0700
+Subject: [PATCH] Build: Cross compilation flags and compilation flags for suppress stdlib.h compilation errors
+
+--- meson.build	2020-02-10 03:20:25.000000000 -0800
++++ meson.build	2020-11-24 10:00:55.105983800 -0800
+@@ -52,7 +52,9 @@
+     '-fno-strict-aliasing',
+     '-DGLIB_VERSION_MIN_REQUIRED=' + glib_version_def,
+     '-DGLIB_VERSION_MAX_ALLOWED=' + glib_version_def,
+-    '-D_GNU_SOURCE',
++    '-D_DEFAULT_SOURCE',
++    '-D_XOPEN_SOURCE=700',
++    (host_system == 'windows') ? '-D__MSYS__' : '-D__LINUX__',
+     '-DG_LOG_DOMAIN="@0@"'.format(meson.project_name()),
+ ])
+ c_cflags = cc.get_supported_arguments([
+@@ -78,11 +80,16 @@
+ 
+ # Dependencies
+ glib_dep = dependency('glib-2.0', version: '>=' + glib_min_version)
+-gio_dep = dependency('gio-unix-2.0', version: '>=' + glib_min_version)
+ gobject_dep = dependency('gobject-2.0', version: '>=' + glib_min_version)
+ gusb_dep = dependency('gusb', version: '>= 0.2.0')
+ mathlib_dep = cc.find_library('m', required: false)
+ 
++if host_system == 'linux'
++    gio_dep = dependency('gio-unix-2.0', version: '>=' + glib_min_version)
++else
++    gio_dep = dependency('glib-2.0', version: '>=' + glib_min_version)
++endif
++
+ # The following dependencies are only used for tests
+ cairo_dep = dependency('cairo', required: false)
+ 
+@@ -175,11 +182,15 @@
+ root_inc = include_directories('.')
+ 
+ if get_option('udev_rules')
+-    udev_rules_dir = get_option('udev_rules_dir')
++    if host_system == 'linux'
++        udev_rules_dir = get_option('udev_rules_dir')
+ 
+-    if udev_rules_dir == 'auto'
+-        udev_dep = dependency('udev')
+-        udev_rules_dir = udev_dep.get_pkgconfig_variable('udevdir') + '/rules.d'
++        if udev_rules_dir == 'auto'
++            udev_dep = dependency('udev')
++            udev_rules_dir = udev_dep.get_pkgconfig_variable('udevdir') + '/rules.d'
++        endif
++    else
++        udev_rules_dir = 'auto'
+     endif
+ endif
+ 
+@@ -204,7 +215,9 @@
+     subdir('demo')
+ endif
+ 
+-subdir('tests')
++if host_system == 'linux'
++    subdir('tests')
++endif
+ 
+ pkgconfig = import('pkgconfig')
+ pkgconfig.generate(

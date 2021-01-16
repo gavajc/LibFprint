@@ -1,0 +1,20 @@
+From: Juan Carlos García Vázquez <gavajc@gmail.com>
+Date: Tue, 24 Nov 2020 00:10:29 +0700
+Subject: [PATCH] Meson Build: Use Meson Build from libfprint V1.9.1
+
+--- examples/meson.build	2020-12-09 04:30:53.000000000 -0800
++++ examples/meson.build	2020-02-10 03:20:25.000000000 -0800
+@@ -1,12 +1,5 @@
+ 
+-examples = [
+-    'enroll',
+-    'identify',
+-    'img-capture',
+-    'manage-prints',
+-    'verify',
+-]
+-
++examples = [ 'enroll', 'verify', 'manage-prints' ]
+ foreach example: examples
+     executable(example,
+         [ example + '.c', 'storage.c', 'utilities.c' ],
