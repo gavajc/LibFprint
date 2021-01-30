@@ -1,0 +1,80 @@
+From: Juan Carlos García Vázquez <gavajc@gmail.com>
+Date: Fri, 29 Jan 2021 11:09:29 +0700
+Subject: [PATCH] Capture: Add compatibility with Windows removing Unix signal for standard C signal.
+
+--- examples/img-capture.c	2021-01-29 19:10:58.814051000 -0600
++++ examples/img-capture.c	2021-01-29 23:06:33.398199618 -0600
+@@ -24,16 +24,16 @@
+ 
+ #include <stdio.h>
+ #include <libfprint/fprint.h>
+-#include <glib-unix.h>
+ 
+ #include "storage.h"
+ #include "utilities.h"
+ 
+-typedef struct CaptureData
++void *ptrCapture = NULL;
++
++typedef struct _CaptureData
+ {
+   GMainLoop    *loop;
+   GCancellable *cancellable;
+-  unsigned int  sigint_handler;
+   int           ret_value;
+   const char   *filename;
+ } CaptureData;
+@@ -41,7 +41,6 @@
+ static void
+ capture_data_free (CaptureData *capture_data)
+ {
+-  g_clear_handle_id (&capture_data->sigint_handler, g_source_remove);
+   g_clear_object (&capture_data->cancellable);
+   g_main_loop_unref (capture_data->loop);
+   g_free (capture_data);
+@@ -125,14 +124,15 @@
+   start_capture (dev, capture_data);
+ }
+ 
+-static gboolean
+-sigint_cb (void *user_data)
++static void sig_handler(int signo)
+ {
+-  CaptureData *capture_data = user_data;
+-
+-  g_cancellable_cancel (capture_data->cancellable);
++    if (signo == SIGINT)
++    {
++        CaptureData *cp_data = (CaptureData *) ptrCapture;
+ 
+-  return G_SOURCE_CONTINUE;
++        printf("Received SIGINT Cancelling\n");
++        g_cancellable_cancel (cp_data->cancellable);
++    }
+ }
+ 
+ int
+@@ -143,6 +143,8 @@
+   GPtrArray *devices;
+   FpDevice *dev;
+ 
++  signal(SIGINT, sig_handler);
++
+   setenv ("G_MESSAGES_DEBUG", "all", 0);
+   setenv ("LIBUSB_DEBUG", "3", 0);
+ 
+@@ -173,11 +175,9 @@
+   capture_data->ret_value = EXIT_FAILURE;
+   capture_data->loop = g_main_loop_new (NULL, FALSE);
+   capture_data->cancellable = g_cancellable_new ();
+-  capture_data->sigint_handler = g_unix_signal_add_full (G_PRIORITY_HIGH,
+-                                                         SIGINT,
+-                                                         sigint_cb,
+-                                                         capture_data,
+-                                                         NULL);
++
++  ptrCapture = capture_data;
++
+   if (argc == 2)
+     capture_data->filename = argv[1];
+   else

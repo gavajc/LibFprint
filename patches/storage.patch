@@ -4,7 +4,7 @@ Subject: [PATCH] Storage: Use Storage SRC files from libfprint V1.9.1
 
 --- examples/storage.h	2020-12-09 04:30:53.000000000 -0800
 +++ examples/storage.h	2020-02-10 03:20:25.000000000 -0800
-@@ -24,10 +24,7 @@
+@@ -24,7 +24,6 @@
                       FpFinger finger);
  FpPrint * print_data_load (FpDevice *dev,
                             FpFinger  finger);
@@ -13,8 +13,7 @@ Subject: [PATCH] Storage: Use Storage SRC files from libfprint V1.9.1
                                   FpFinger  finger);
  gboolean print_image_save (FpPrint    *print,
                             const char *path);
--gboolean save_image_to_pgm (FpImage    *img,
--                            const char *path);
+ gboolean print_image_save (FpPrint    *print,
 
 --- examples/storage.c	2020-12-09 04:30:53.000000000 -0800
 +++ examples/storage.c	2020-02-10 03:20:25.000000000 -0800
@@ -88,12 +87,4 @@ Subject: [PATCH] Storage: Use Storage SRC files from libfprint V1.9.1
  FpPrint *
  print_create_template (FpDevice *dev, FpFinger finger)
  {
-@@ -226,7 +181,7 @@
- }
- 
- 
--gboolean
-+static gboolean
- save_image_to_pgm (FpImage *img, const char *path)
- {
-   FILE *fd = fopen (path, "w");
+
