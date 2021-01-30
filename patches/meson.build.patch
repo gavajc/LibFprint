@@ -4,6 +4,15 @@ Subject: [PATCH] Build: Cross compilation flags and compilation flags for suppre
 
 --- meson.build	2020-02-10 03:20:25.000000000 -0800
 +++ meson.build	2020-11-24 10:00:55.105983800 -0800
+@@ -2,7 +2,7 @@
+     version: '1.90.6',
+     license: 'LGPLv2.1+',
+     default_options: [
+-        'buildtype=debugoptimized',
++        'buildtype=release',
+         'warning_level=1',
+         'c_std=gnu99',
+     ],
 @@ -52,7 +52,9 @@
      '-fno-strict-aliasing',
      '-DGLIB_VERSION_MIN_REQUIRED=' + glib_version_def,
@@ -15,7 +24,12 @@ Subject: [PATCH] Build: Cross compilation flags and compilation flags for suppre
      '-DG_LOG_DOMAIN="@0@"'.format(meson.project_name()),
  ])
  c_cflags = cc.get_supported_arguments([
-@@ -78,11 +80,16 @@
+@@ -74,15 +76,20 @@
+ current = 0
+ revision = 0
+ libversion = '@0@.@1@.@2@'.format(soversion, current, revision)
+-versioned_libname = meson.project_name() + '-' + soversion.to_string()
++versioned_libname = meson.project_name()
  
  # Dependencies
  glib_dep = dependency('glib-2.0', version: '>=' + glib_min_version)
