@@ -1,0 +1,42 @@
+From: Juan Carlos García Vázquez <gavajc@gmail.com>
+Date: Sat, 30 Jan 2021 20:53:29 +0700
+Subject: [PATCH] libfprint-build: Add sources in build file for export bozorth algorithms.
+
+--- libfprint/meson.build	2021-01-31 19:26:16.661935000 -0600
++++ libfprint/meson.build	2021-01-31 18:27:37.673898000 -0600
+@@ -18,6 +18,8 @@
+     'fpi-usb-transfer.c',
+ ]
+ 
++other_sources = ['fp-boz-algm.c']
++
+ libfprint_public_headers = [
+     'fp-context.h',
+     'fp-device.h',
+@@ -43,6 +45,8 @@
+     'fpi-ssm.h',
+ ]
+ 
++libfprint_other_headers = ['fp-boz-algm.h']
++
+ nbis_sources = [
+     'nbis/bozorth3/bozorth3.c',
+     'nbis/bozorth3/bz_alloc.c',
+@@ -179,8 +183,6 @@
+     drivers_sources += ['drivers/aes3k.c' ]
+ endif
+ 
+-other_sources = []
+-
+ fp_enums = gnome.mkenums_simple('fp-enums',
+     sources: libfprint_public_headers,
+     install_header: true,
+@@ -280,7 +282,7 @@
+         gusb_dep,
+     ])
+ 
+-install_headers(['fprint.h'] + libfprint_public_headers,
++install_headers(['fprint.h'] + libfprint_public_headers + libfprint_other_headers,
+     subdir: versioned_libname
+ )
+ 

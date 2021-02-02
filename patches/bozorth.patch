@@ -1,6 +1,6 @@
 From: Juan Carlos García Vázquez <gavajc@gmail.com>
-Date: Tue, 24 Nov 2020 00:10:29 +0700
-Subject: [PATCH] Bozorth: Remove duplicate declaration for stderr
+Date: Sat, 30 Jan 2021 20:53:29 +0700
+Subject: [PATCH] Bozorth: Remove duplicate declaration for stderr and export bozorth algorithms for fp-print.
 
 --- libfprint/nbis/include/bozorth.h	2020-02-10 03:20:25.000000000 -0800
 +++ libfprint/nbis/include/bozorth.h	2020-11-23 11:40:51.965048500 -0800
@@ -13,3 +13,164 @@ Subject: [PATCH] Bozorth: Remove duplicate declaration for stderr
  
  /**************************************************************************/
  /* In: BZ_GBLS.C */
+
+--- libfprint/fp-boz-algm.h	2021-01-30 20:48:12.335016000 -0600
++++ libfprint/fp-boz-algm.h	2021-01-30 20:22:55.179001000 -0600
+@@ -0,0 +1,29 @@
++#ifndef FP_BOZ_ALGM_H
++#define FP_BOZ_ALGM_H
++
++/*
++ * Exported bozorth definitions & algorithms for compare 
++ * mituniae arrays and convertion types.
++ *
++ * Author: gavajc@live.com
++ *   Date: 30/01/21
++ *
++ */
++
++#include <glib.h>
++
++#define FP_MAX_BOZORTH_MINUTIAE 200
++
++typedef struct
++{
++    int nrows;
++    int xcol[FP_MAX_BOZORTH_MINUTIAE];
++    int ycol[FP_MAX_BOZORTH_MINUTIAE];
++    int thetacol[FP_MAX_BOZORTH_MINUTIAE];
++}fp_xyt;
++
++int fp_bozorth_probe_init(fp_xyt *pstruct);
++int fp_bozorth_to_gallery(int probe_len, fp_xyt *pstruct, fp_xyt *gstruct);
++int fp_bozorth_minutiae_to_xyt(GPtrArray *minutiae, int width, int height, fp_xyt *xyt);
++
++#endif
+
+--- libfprint/fp-boz-algm.c	2021-01-31 14:51:04.224000018 -0600
++++ libfprint/fp-boz-algm.c	2021-01-31 19:09:25.345925178 -0600
+@@ -0,0 +1,124 @@
++
++#include <nbis.h>
++#include "fp-boz-algm.h"
++//----------------------------------------------------------------------
++
++/**
++ * minutiae_to_xyt:
++ * @fp_minutiae: Structure of type fp_minutiae with minutiae data.
++ * @bwidth:      Represents the FpImage width.
++ * @bheight:     Represents the FPImage height.
++ * @xyt:         Structure of type xyt_struct for save the converted data
++ *
++ *
++ * This is the old version, but wouldn't it be smarter to instead
++ * use the highest quality mintutiae? Possibly just using bz_prune
++ * from upstream?
++ *
++*/
++static void minutiae_to_xyt (struct fp_minutiae *minutiae, int bwidth,
++                             int bheight, struct xyt_struct *xyt)
++{
++    int i;
++    struct fp_minutia *minutia;
++    struct minutiae_struct c[MAX_FILE_MINUTIAE];
++
++    /* struct xyt_struct uses arrays of MAX_BOZORTH_MINUTIAE (200) */
++    int nmin = min (minutiae->num, MAX_BOZORTH_MINUTIAE);
++
++    for (i = 0; i < nmin; i++)
++    {
++         minutia = minutiae->list[i];
++
++         lfs2nist_minutia_XYT (&c[i].col[0], &c[i].col[1], &c[i].col[2],
++                               minutia, bwidth, bheight);
++
++         c[i].col[3] = sround (minutia->reliability * 100.0);
++
++         if (c[i].col[2] > 180)
++             c[i].col[2] -= 360;
++    }
++
++    qsort ((void *) &c, (size_t) nmin, sizeof (struct minutiae_struct), sort_x_y);
++
++    for (i = 0; i < nmin; i++)
++    {
++         xyt->xcol[i]     = c[i].col[0];
++         xyt->ycol[i]     = c[i].col[1];
++         xyt->thetacol[i] = c[i].col[2];
++    }
++
++    xyt->nrows = nmin;
++}
++
++/**
++ * fp_bozorth_probe_init:
++ * @pstruct: Structure of type xyt_struct with bozorth minutiae
++ *
++ * Creates the pairwise minutia comparison table for the probe fingerprint
++ *
++ * Returns: The len of the probe or -1 if invalid params.
++*/
++int fp_bozorth_probe_init(fp_xyt *pstruct)
++{
++    if (!pstruct)
++        return -1;
++
++    return bozorth_probe_init((struct xyt_struct *)pstruct);
++}
++
++/**
++ * fp_print_bozorth_to_gallery:
++ * @probe_len: The length of the probe structure.
++ * @pstruct:   Structure of type xyt_struct with bozorth minutiae. It's the probe structure
++ * @gstruct:   Structure of type xyt_struct with bozorth minutiae
++ *
++ * Supports the matching scenario where the same probe fingerprint is matches
++ * repeatedly to multiple gallery fingerprints as in identification mode.
++ *
++ * Returns: The bozorth match score or -1 if invalid params.
++*/
++int fp_bozorth_to_gallery(int probe_len, fp_xyt *pstruct, fp_xyt *gstruct)
++{
++    if (!pstruct || !gstruct || probe_len < 0)
++        return -1;
++
++    return bozorth_to_gallery(probe_len,(struct xyt_struct *)pstruct,(struct xyt_struct *)gstruct);
++}
++//----------------------------------------------------------------------
++
++/**
++ * fp_bozorth_minutiae_to_xyt:
++ * @minutiae: Glib Array with the minutiae exctracted from FpImage.
++ * @bwidth:   Represents the FpImage width.
++ * @bheight:  Represents the FPImage height.
++ * @xyt:      Structure of type xyt_struct for save the converted data.
++ *
++ * Converts an FpImage minutiae as GptrArray into bozorth structure
++ * of type xyt_struct that can be compared using fp_bozorth_probe_init and
++ * fp_bozorth_to_gallery.
++ * 
++ * You need to first detect the minutiae using fp_image_detect_minutiae(),
++ * fp_image_detect_minutiae_finish() and after that call fp_image_get_minutiae().
++ *
++ * The GptrArray * returned by fp_image_get_minutiae() is the param: 
++ * minutiae in this function.
++ *
++ * Returns: 0 on sucess or -1 if invalid params. The xyt param is filled with the converted data.
++*/
++int fp_bozorth_minutiae_to_xyt(GPtrArray *minutiae, int width, int height, fp_xyt *xyt)
++{
++    struct fp_minutiae _minutiae;
++    
++    if (!minutiae || !xyt || minutiae->len == 0 || width < 0 || height < 0)
++        return -1;
++
++    _minutiae.num   = minutiae->len;
++    _minutiae.list  = (struct fp_minutia **) minutiae->pdata;
++    _minutiae.alloc = minutiae->len;
++
++    minutiae_to_xyt (&_minutiae, width, height, (struct xyt_struct *)xyt);
++    
++    return 0;
++}
++//----------------------------------------------------------------------
