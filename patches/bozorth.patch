@@ -39,11 +39,11 @@ Subject: [PATCH] Bozorth: Remove duplicate declaration for stderr and export boz
 +    int xcol[FP_MAX_BOZORTH_MINUTIAE];
 +    int ycol[FP_MAX_BOZORTH_MINUTIAE];
 +    int thetacol[FP_MAX_BOZORTH_MINUTIAE];
-+}fp_xyt;
++}fp_bozorth_xyt;
 +
-+int fp_bozorth_probe_init(fp_xyt *pstruct);
-+int fp_bozorth_to_gallery(int probe_len, fp_xyt *pstruct, fp_xyt *gstruct);
-+int fp_bozorth_minutiae_to_xyt(GPtrArray *minutiae, int width, int height, fp_xyt *xyt);
++int fp_bozorth_probe_init(fp_bozorth_xyt *pstruct);
++int fp_bozorth_to_gallery(int probe_len, fp_bozorth_xyt *pstruct, fp_bozorth_xyt *gstruct);
++int fp_bozorth_minutiae_to_xyt(GPtrArray *minutiae, int width, int height, fp_bozorth_xyt *xyt);
 +
 +#endif
 
@@ -111,7 +111,7 @@ Subject: [PATCH] Bozorth: Remove duplicate declaration for stderr and export boz
 + *
 + * Returns: The len of the probe or -1 if invalid params.
 +*/
-+int fp_bozorth_probe_init(fp_xyt *pstruct)
++int fp_bozorth_probe_init(fp_bozorth_xyt *pstruct)
 +{
 +    if (!pstruct)
 +        return -1;
@@ -130,7 +130,7 @@ Subject: [PATCH] Bozorth: Remove duplicate declaration for stderr and export boz
 + *
 + * Returns: The bozorth match score or -1 if invalid params.
 +*/
-+int fp_bozorth_to_gallery(int probe_len, fp_xyt *pstruct, fp_xyt *gstruct)
++int fp_bozorth_to_gallery(int probe_len, fp_bozorth_xyt *pstruct, fp_bozorth_xyt *gstruct)
 +{
 +    if (!pstruct || !gstruct || probe_len < 0)
 +        return -1;
@@ -158,7 +158,7 @@ Subject: [PATCH] Bozorth: Remove duplicate declaration for stderr and export boz
 + *
 + * Returns: 0 on sucess or -1 if invalid params. The xyt param is filled with the converted data.
 +*/
-+int fp_bozorth_minutiae_to_xyt(GPtrArray *minutiae, int width, int height, fp_xyt *xyt)
++int fp_bozorth_minutiae_to_xyt(GPtrArray *minutiae, int width, int height, fp_bozorth_xyt *xyt)
 +{
 +    struct fp_minutiae _minutiae;
 +    
