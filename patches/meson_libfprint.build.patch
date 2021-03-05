@@ -31,7 +31,7 @@ Subject: [PATCH] libfprint-build: Add sources in build file for export bozorth a
  fp_enums = gnome.mkenums_simple('fp-enums',
      sources: libfprint_public_headers,
      install_header: true,
-@@ -280,7 +282,7 @@
+@@ -282,7 +284,7 @@
          gusb_dep,
      ])
  

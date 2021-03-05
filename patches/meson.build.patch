@@ -5,7 +5,7 @@ Subject: [PATCH] Build: Cross compilation flags and compilation flags for suppre
 --- meson.build	2020-02-10 03:20:25.000000000 -0800
 +++ meson.build	2020-11-24 10:00:55.105983800 -0800
 @@ -2,7 +2,7 @@
-     version: '1.90.6',
+     version: '1.90.7',
      license: 'LGPLv2.1+',
      default_options: [
 -        'buildtype=debugoptimized',

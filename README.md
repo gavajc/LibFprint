@@ -2,13 +2,13 @@
 
 **Juan Carlos García Vázquez**
 
-+   Date: Jan 15, 2021.
++   Date: Mar 05, 2021.
 + E-Mail: gavajc@live.com
 
 # GENERAL INFO
 
-This is a cross compile libfprint project for version v1.90.6. The folder 
-libfprint-v1.90.6 contains the original sources from freedesktop gitlab repositories.
+This is a cross compile libfprint project for version v1.90.7. The folder 
+libfprint-v1.90.7 contains the original sources from freedesktop gitlab repositories.
 
 The libfprint project was born as university project later the project continue as an
 open source. Is currently maintained by freedesktop.org.
@@ -27,7 +27,23 @@ For example:
 
 
 In general you can use the library for enroll, capture, verify, identify, fingerprints ...
-The library was tested with Digital Persona U are U 400/4500 devices. in both O.S. (Windows/Linux).
+The library was tested with Digital Persona U are U 4000/4500 devices. in both O.S. (Windows/Linux).
+
+We exposed some functions from the NBIS library to retrieve minutiae in bozorth format by using 
+the image capture functions of libfprint and for compare minutiae. This is useful when you want to
+create a service for verify fingerprints. The exported data from NBIS are in fp-boz-algm.h and
+include some functions and structures for manipulate the bozorth fingerprint.
+
+    Structures:
+    
+        fp_bozorth_xyt
+    
+    Funtions:
+    
+    fp_bozorth_minutiae_to_xyt
+    fp_bozorth_probe_init
+    fp_bozorth_to_gallery
+
 
 In Windows you have to install the MSYS2 environment with MinGW64 tools and the tool Zadig for install
 de WINUSB driver or libUSBK driver.
@@ -115,14 +131,14 @@ compiling the libfprint library.
         In Windows open a PowerShell console, In Linux a console and execute 
         the prepare.sh script and as parameter the libfprint source folder.
         
-        ./prepare.sh libfprint-v1.90.6
+        ./prepare.sh libfprint-v1.90.7
         
         If the sources were patched the script indicates it. If not then then
         sources will be patched. If all ok the script indicates it.
         
     2.- After patch the sources you can compile the libfprint library:
     
-        cd libfprint-v1.90.6
+        cd libfprint-v1.90.7
         meson buildir && cd builddir
         
         If all dependencies were installed the result of the meson buildir will be ok.
