@@ -48,7 +48,7 @@ include some functions and structures for manipulate the bozorth fingerprint.
 In Windows you have to install the MSYS2 environment with MinGW64 tools and the tool Zadig for install
 de WINUSB driver or libUSBK driver.
 
-The complete list of dependencies are:
+The complete list of dependencies is:
 
 
         	CMake
