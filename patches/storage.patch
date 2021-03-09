@@ -25,7 +25,18 @@ Subject: [PATCH] Storage: Use Storage SRC files from libfprint V1.9.1
  #include "storage.h"
  
  #include <errno.h>
-@@ -160,52 +161,6 @@
+@@ -30,6 +29,10 @@
+ #include <stdlib.h>
+ #include <unistd.h>
+ 
++#if !GLIB_CHECK_VERSION (2, 60, 0)
++G_DEFINE_AUTOPTR_CLEANUP_FUNC (GDate, g_date_free);
++#endif
++
+ #define STORAGE_FILE "test-storage.variant"
+ 
+ static char *
+@@ -160,52 +163,6 @@
    return NULL;
  }
  
@@ -78,4 +89,3 @@ Subject: [PATCH] Storage: Use Storage SRC files from libfprint V1.9.1
  FpPrint *
  print_create_template (FpDevice *dev, FpFinger finger)
  {
-
