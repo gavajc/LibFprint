@@ -1,0 +1,99 @@
+From: Juan Carlos García Vázquez <gavajc@gmail.com>
+Date: Wed, 10 Mar 2021 19:58:29 +0600
+Subject: [PATCH] Device: Add functions for retrieve Device VID, PID and Serial Number.
+
+--- libfprint/fp-device.h	2021-03-07 16:53:43.000000000 -0600
++++ libfprint/fp-device.h	2021-03-10 18:47:31.000000000 -0600
+@@ -171,6 +171,10 @@
+ const gchar *fp_device_get_driver (FpDevice *device);
+ const gchar *fp_device_get_device_id (FpDevice *device);
+ const gchar *fp_device_get_name (FpDevice *device);
++gchar       *fp_device_get_serial(FpDevice *device, GError **error);
++guint16      fp_device_get_vid(FpDevice *device);
++guint16      fp_device_get_pid(FpDevice *device);
++
+ gboolean     fp_device_is_open (FpDevice *device);
+ FpScanType   fp_device_get_scan_type (FpDevice *device);
+ FpFingerStatusFlags fp_device_get_finger_status (FpDevice *device);
+
+--- libfprint/fp-device.c	2021-03-07 16:53:43.000000000 -0600
++++ libfprint/fp-device.c	2021-03-10 19:12:52.000000000 -0600
+@@ -497,6 +497,78 @@
+ }
+ 
+ /**
++ * fp_device_get_serial:
++ * @device: A #FpDevice
++ * @error: Return location for errors, or %NULL to ignore
++ *
++ * Retrieve the serial number if exists.
++ * The returned string should be freed with g_free() when no longer needed.
++ * 
++ * Returns: (transfer none): If exists, the device serial number or NULL on error
++ */
++gchar *
++fp_device_get_serial(FpDevice *device, GError **error)
++{
++  gchar *serial = NULL;
++  gboolean open = FALSE;
++  FpDevicePrivate *priv = fp_device_get_instance_private (device);
++
++  g_return_val_if_fail (FP_IS_DEVICE (device), NULL);
++  
++  if (!priv->is_open)
++  {
++      if (!fp_device_open_sync(device,NULL,error))
++          return NULL;
++      
++      open = TRUE;
++  }
++  
++  serial = g_usb_device_get_string_descriptor(priv->usb_device,
++                                              g_usb_device_get_serial_number_index (priv->usb_device),
++                                              error);
++  
++  if (open)
++  {
++      if (!fp_device_close_sync(device,NULL,error)) {
++          g_free(serial);
++          serial = NULL;
++      }
++  }
++  
++  return serial;
++}
++
++/**
++ * fp_device_get_vid:
++ * @device: A #FpDevice
++ *
++ * Returns: The vendor ID for the device or 0 on Error.
++ */
++guint16 fp_device_get_vid(FpDevice *device)
++{
++  FpDevicePrivate *priv = fp_device_get_instance_private (device);
++
++  g_return_val_if_fail (FP_IS_DEVICE (device), 0);
++  
++  return g_usb_device_get_vid(priv->usb_device);
++}
++
++/**
++ * fp_device_get_pid:
++ * @device: A #FpDevice
++ *
++ * Returns: The product ID for the device or 0 on Error.
++ */
++guint16 fp_device_get_pid(FpDevice *device)
++{
++  FpDevicePrivate *priv = fp_device_get_instance_private (device);
++
++  g_return_val_if_fail (FP_IS_DEVICE (device), 0);
++  
++  return g_usb_device_get_pid(priv->usb_device);
++}
++
++/**
+  * fp_device_is_open:
+  * @device: A #FpDevice
+  *
