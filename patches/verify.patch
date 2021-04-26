@@ -1,12 +1,14 @@
 From: Juan Carlos García Vázquez <gavajc@gmail.com>
-Date: Tue, 24 Nov 2020 00:10:29 +0700
-Subject: [PATCH] Verify: Use Verify program from libfprint V1.9.1
+Date: Mon, 26 Apr 2021 00:10:29 +0700
+Subject: [PATCH] Verify: Use Verify program from libfprint V1.9.7
 
---- examples/verify.c	2020-12-09 04:30:53.000000000 -0800
-+++ examples/verify.c	2021-01-06 15:11:54.778705600 -0800
-@@ -23,25 +23,20 @@
+--- examples/verify.c	2021-03-10 20:13:07.000000000 -0600
+--- examples/verify.c	2021-04-26 00:35:47.135104387 -0500
+@@ -22,26 +22,22 @@
+ #define FP_COMPONENT "example-verify"
  
  #include <stdio.h>
++#include <stdlib.h>
  #include <libfprint/fprint.h>
 -#include <glib-unix.h>
  
@@ -33,7 +35,7 @@ Subject: [PATCH] Verify: Use Verify program from libfprint V1.9.1
    g_main_loop_unref (verify_data->loop);
    g_free (verify_data);
  }
-@@ -57,7 +52,7 @@
+@@ -57,7 +53,7 @@
    fp_device_close_finish (dev, res, &error);
  
    if (error)
@@ -42,7 +44,7 @@ Subject: [PATCH] Verify: Use Verify program from libfprint V1.9.1
  
    g_main_loop_quit (verify_data->loop);
  }
-@@ -124,7 +119,7 @@
+@@ -124,7 +120,7 @@
        return;
      }
  
@@ -51,7 +53,7 @@ Subject: [PATCH] Verify: Use Verify program from libfprint V1.9.1
        print_image_save (print, "verify.pgm"))
      g_print ("Print image saved as verify.pgm\n");
  
-@@ -152,26 +147,6 @@
+@@ -152,26 +148,6 @@
      }
  }
  
@@ -78,7 +80,7 @@ Subject: [PATCH] Verify: Use Verify program from libfprint V1.9.1
  static void
  on_list_completed (FpDevice *dev, GAsyncResult *res, gpointer user_data)
  {
-@@ -185,27 +160,15 @@
+@@ -185,27 +161,15 @@
    if (!error)
      {
        FpPrint *verify_print = NULL;
@@ -107,7 +109,7 @@ Subject: [PATCH] Verify: Use Verify program from libfprint V1.9.1
            if (fp_print_get_finger (print) == verify_data->finger &&
                g_strcmp0 (fp_print_get_username (print), g_get_user_name ()) == 0)
              {
-@@ -223,6 +186,8 @@
+@@ -223,6 +187,8 @@
  
        if (!verify_print)
          {
@@ -116,7 +118,7 @@ Subject: [PATCH] Verify: Use Verify program from libfprint V1.9.1
            verify_quit (dev, verify_data);
            return;
          }
-@@ -231,7 +196,7 @@
+@@ -231,7 +197,7 @@
                 fp_print_get_description (verify_print));
  
        g_print ("Print loaded. Time to verify!\n");
@@ -125,7 +127,7 @@ Subject: [PATCH] Verify: Use Verify program from libfprint V1.9.1
                          on_match_cb, verify_data, NULL,
                          (GAsyncReadyCallback) on_verify_completed,
                          verify_data);
-@@ -269,16 +234,23 @@
+@@ -269,16 +235,23 @@
      }
    else
      {
@@ -151,7 +153,7 @@ Subject: [PATCH] Verify: Use Verify program from libfprint V1.9.1
                          on_match_cb, verify_data, NULL,
                          (GAsyncReadyCallback) on_verify_completed,
                          verify_data);
-@@ -304,16 +276,6 @@
+@@ -304,16 +277,6 @@
    start_verification (dev, verify_data);
  }
  
@@ -168,7 +170,7 @@ Subject: [PATCH] Verify: Use Verify program from libfprint V1.9.1
  int
  main (void)
  {
-@@ -344,14 +306,8 @@
+@@ -344,14 +307,8 @@
    verify_data = g_new0 (VerifyData, 1);
    verify_data->ret_value = EXIT_FAILURE;
    verify_data->loop = g_main_loop_new (NULL, FALSE);

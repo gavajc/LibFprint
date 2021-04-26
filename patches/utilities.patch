@@ -1,17 +1,15 @@
 From: Juan Carlos García Vázquez <gavajc@gmail.com>
-Date: Tue, 24 Nov 2020 00:10:29 +0700
+Date: Mon, 26 Apr 2021 00:10:29 +0700
 Subject: [PATCH] Utilities: Add portable wrapper for setenv function
 
---- examples/utilities.h	2020-02-10 03:20:25.000000000 -0800
-+++ examples/utilities.h	2020-11-23 14:21:42.520721500 -0800
-@@ -17,9 +17,19 @@
+--- examples/utilities.h	2021-03-10 20:13:07.000000000 -0700
++++ examples/utilities.h	2021-04-26 00:13:57.000000000 -0700
+@@ -17,9 +17,17 @@
   * License along with this library; if not, write to the Free Software
   * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
   */
 +#ifndef _UTILITIES_H
 +#define _UTILITIES_H
-+
-+#include <stdlib.h>
  
  #pragma once
  

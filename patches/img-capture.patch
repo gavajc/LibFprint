@@ -1,12 +1,14 @@
 From: Juan Carlos García Vázquez <gavajc@gmail.com>
-Date: Fri, 29 Jan 2021 11:09:29 +0700
+Date: Mon, 26 Apr 2021 00:09:29 +0700
 Subject: [PATCH] Capture: Add compatibility with Windows removing Unix signal for standard C signal.
 
---- examples/img-capture.c	2021-01-29 19:10:58.814051000 -0600
-+++ examples/img-capture.c	2021-01-29 23:06:33.398199618 -0600
-@@ -24,16 +24,16 @@
+--- examples/img-capture.c	2021-03-10 20:13:07.000000000 -0600
+--- examples/img-capture.c	2021-04-26 00:40:58.778851808 -0500
+@@ -23,17 +23,18 @@
+ #define FP_COMPONENT "example-capture"
  
  #include <stdio.h>
++#include <stdlib.h>
  #include <libfprint/fprint.h>
 -#include <glib-unix.h>
  
@@ -24,7 +26,7 @@ Subject: [PATCH] Capture: Add compatibility with Windows removing Unix signal fo
    int           ret_value;
    const char   *filename;
  } CaptureData;
-@@ -41,7 +41,6 @@
+@@ -41,7 +42,6 @@
  static void
  capture_data_free (CaptureData *capture_data)
  {
@@ -32,7 +34,15 @@ Subject: [PATCH] Capture: Add compatibility with Windows removing Unix signal fo
    g_clear_object (&capture_data->cancellable);
    g_main_loop_unref (capture_data->loop);
    g_free (capture_data);
-@@ -125,14 +124,15 @@
+@@ -96,6 +96,7 @@
+     }
+ 
+   save_image_to_pgm (image, capture_data->filename);
++  g_object_unref(image);
+ 
+   capture_quit (dev, capture_data);
+ }
+@@ -125,14 +126,15 @@
    start_capture (dev, capture_data);
  }
  
@@ -54,7 +64,7 @@ Subject: [PATCH] Capture: Add compatibility with Windows removing Unix signal fo
  }
  
  int
-@@ -143,6 +143,8 @@
+@@ -143,6 +145,8 @@
    GPtrArray *devices;
    FpDevice *dev;
  
@@ -63,7 +73,7 @@ Subject: [PATCH] Capture: Add compatibility with Windows removing Unix signal fo
    setenv ("G_MESSAGES_DEBUG", "all", 0);
    setenv ("LIBUSB_DEBUG", "3", 0);
  
-@@ -173,11 +175,9 @@
+@@ -173,11 +177,9 @@
    capture_data->ret_value = EXIT_FAILURE;
    capture_data->loop = g_main_loop_new (NULL, FALSE);
    capture_data->cancellable = g_cancellable_new ();

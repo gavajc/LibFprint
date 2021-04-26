@@ -1,0 +1,15 @@
+From: Juan Carlos García Vázquez <gavajc@gmail.com>
+Date: Mon, 26 Apr 2021 00:10:29 +0700
+Subject: [PATCH] Manage-Prints: Use manage-prints program from libfprint V1.9.7
+
+--- examples/manage-prints.c	2021-03-07 16:53:43.000000000 -0600
+--- examples/manage-prints.c	2021-04-26 00:33:27.677408899 -0500
+@@ -21,7 +21,7 @@
+ #define FP_COMPONENT "example-mange-prints"
+ 
+ #include <stdio.h>
+-
++#include <stdlib.h>
+ #include <libfprint/fprint.h>
+ #include "utilities.h"
+ 

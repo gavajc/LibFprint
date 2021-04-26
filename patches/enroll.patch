@@ -1,9 +1,9 @@
 From: Juan Carlos García Vázquez <gavajc@gmail.com>
-Date: Tue, 24 Nov 2020 00:10:29 +0700
-Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.1
+Date: Mon, 26 Apr 2021 00:10:29 +0700
+Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.7
 
---- examples/enroll.c	2020-12-09 04:30:53.000000000 -0800
-+++ examples/enroll.c	2020-02-10 03:20:25.000000000 -0800
+--- examples/enroll.c	2021-03-10 20:13:07.000000000 -0600
+--- examples/enroll.c	2021-04-26 00:53:39.658794391 -0500
 @@ -1,6 +1,6 @@
  /*
   * Example fingerprint enrollment program
@@ -12,9 +12,11 @@ Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.1
   * Copyright (C) 2007 Daniel Drake <dsd@gentoo.org>
   * Copyright (C) 2019 Marco Trevisan <marco.trevisan@canonical.com>
   *
-@@ -23,25 +23,20 @@
+@@ -22,26 +22,22 @@
+ #define FP_COMPONENT "example-enroll"
  
  #include <stdio.h>
++#include <stdlib.h>
  #include <libfprint/fprint.h>
 -#include <glib-unix.h>
  
@@ -41,7 +43,7 @@ Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.1
    g_main_loop_unref (enroll_data->loop);
    g_free (enroll_data);
  }
-@@ -57,7 +52,7 @@
+@@ -57,7 +53,7 @@
    fp_device_close_finish (dev, res, &error);
  
    if (error)
@@ -50,7 +52,7 @@ Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.1
  
    g_main_loop_quit (enroll_data->loop);
  }
-@@ -76,24 +71,20 @@
+@@ -76,24 +72,20 @@
      {
        enroll_data->ret_value = EXIT_SUCCESS;
  
@@ -84,7 +86,7 @@ Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.1
      }
  
    fp_device_close (dev, NULL, (GAsyncReadyCallback) on_device_closed,
-@@ -116,7 +107,7 @@
+@@ -116,7 +108,7 @@
        return;
      }
  
@@ -93,7 +95,7 @@ Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.1
        print_image_save (print, "enrolled.pgm"))
      printf ("Wrote scanned image to enrolled.pgm\n");
  
-@@ -146,22 +137,11 @@
+@@ -146,22 +138,11 @@
    printf ("Scan your finger now.\n");
  
    print_template = print_create_template (dev, enroll_data->finger);
@@ -118,7 +120,7 @@ Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.1
  int
  main (void)
  {
-@@ -208,15 +188,8 @@
+@@ -208,15 +189,8 @@
    enroll_data->finger = finger;
    enroll_data->ret_value = EXIT_FAILURE;
    enroll_data->loop = g_main_loop_new (NULL, FALSE);
