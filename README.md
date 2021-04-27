@@ -2,8 +2,8 @@
 
 **Juan Carlos García Vázquez**
 
-+   Date: Mar 05, 2021.
-+ E-Mail: gavajc@live.com
++   Date: Apr 27, 2021.
++ E-Mail: gavajc@gmail.com
 
 # GENERAL INFO
 
@@ -102,7 +102,11 @@ Linux install dependencies commands (Based on Ubuntu systems):
 
 Windows install dependencies commands (Using MSYS2 Environment):
 
+        MSYS Packages
+        	pacman -S base-devel gcc vim cmake
+        	pacman -S development
 
+        MINGW64 Packages
         	pacman -S mingw-w64-x86_64-toolchain
         	pacman -S mingw-w64-x86_64-meson
         	pacman -S mingw-w64-x86_64-cmake

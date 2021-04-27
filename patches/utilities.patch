@@ -1,5 +1,5 @@
 From: Juan Carlos García Vázquez <gavajc@gmail.com>
-Date: Mon, 26 Apr 2021 00:10:29 +0700
+Date: Tue, 27 Apr 2021 00:10:29 +0700
 Subject: [PATCH] Utilities: Add portable wrapper for setenv function
 
 --- examples/utilities.h	2021-03-10 20:13:07.000000000 -0700
@@ -23,42 +23,28 @@ Subject: [PATCH] Utilities: Add portable wrapper for setenv function
 +
 +#endif
 
---- examples/utilities.c	2020-02-10 03:20:25.000000000 -0800
-+++ examples/utilities.c	2020-11-23 14:48:45.235620700 -0800
-@@ -125,3 +125,37 @@
+--- examples/utilities.c	2021-03-10 20:13:07.000000000 -0600
+--- examples/utilities.c	2021-04-27 10:02:45.000000000 -0500
+@@ -22,6 +22,7 @@
+ 
+ #include <libfprint/fprint.h>
+ #include <stdio.h>
++#include <stdlib.h>
+ 
+ #include "utilities.h"
+ 
+@@ -125,3 +126,15 @@
  
    return i;
  }
 +
 +#ifdef __MSYS__
-+#ifdef __cplusplus
-+extern "C" {
-+#endif
-+
-+#include <sec_api/stdlib_s.h>
-+
-+errno_t getenv_s(
-+    size_t     *ret_required_buf_size,
-+    char       *buf,
-+    size_t      buf_size_in_bytes,
-+    const char *name
-+);
-+
-+#ifdef __cplusplus
-+}
-+#endif
 +
 +int setenv(const char *name, const char *value, int overwrite)
-+{
-+    int errcode = 0;
-+    
-+    if(!overwrite)
-+    {
-+        size_t envsize = 0;
-+        errcode = getenv_s(&envsize, NULL, 0, name);
-+        if (errcode || envsize)
-+            return errcode;
-+    }
++{   
++    if (!overwrite)
++        if (getenv(name) != NULL)
++            return 0;
 +    
 +    return _putenv_s(name, value);
 +}
