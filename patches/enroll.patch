@@ -1,17 +1,9 @@
 From: Juan Carlos García Vázquez <gavajc@gmail.com>
-Date: Mon, 26 Apr 2021 00:10:29 +0700
-Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.7
+Date: Thu, 01 Jul 2021 20:02:12 +0800
+Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.1
 
 --- examples/enroll.c	2021-03-10 20:13:07.000000000 -0600
---- examples/enroll.c	2021-04-26 00:53:39.658794391 -0500
-@@ -1,6 +1,6 @@
- /*
-  * Example fingerprint enrollment program
-- * Enrolls your chosen finger and saves the print to disk
-+ * Enrolls your choosen finger and saves the print to disk
-  * Copyright (C) 2007 Daniel Drake <dsd@gentoo.org>
-  * Copyright (C) 2019 Marco Trevisan <marco.trevisan@canonical.com>
-  *
++++ examples/enroll.c	2021-04-26 00:53:39.658794391 -0500
 @@ -22,26 +22,22 @@
  #define FP_COMPONENT "example-enroll"
  
@@ -52,11 +44,11 @@ Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.7
  
    g_main_loop_quit (enroll_data->loop);
  }
-@@ -76,24 +72,20 @@
+@@ -76,19 +72,15 @@
      {
        enroll_data->ret_value = EXIT_SUCCESS;
  
--      if (fp_device_has_storage (dev))
+-      if (fp_device_has_feature (dev, FP_DEVICE_FEATURE_STORAGE))
 -        g_debug ("Device has storage, saving a print reference locally");
 -      else
 -        g_debug ("Device has not storage, saving print only locally");
@@ -66,7 +58,7 @@ Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.7
 -       * containing the handle to the device print */
 -      int r = print_data_save (print, enroll_data->finger);
 -      if (r < 0)
-+      if (!fp_device_has_storage (dev))
++      if (!fp_device_has_feature (dev, FP_DEVICE_FEATURE_STORAGE))
          {
 -          g_warning ("Data save failed, code %d", r);
 -          enroll_data->ret_value = EXIT_FAILURE;
@@ -80,18 +72,12 @@ Subject: [PATCH] Enroll: Use Enroll program from libfprint V1.9.7
          }
      }
    else
-     {
--      g_warning ("Enroll failed with error %s", error->message);
-+      g_warning ("Enroll failed with error %s\n", error->message);
-     }
- 
-   fp_device_close (dev, NULL, (GAsyncReadyCallback) on_device_closed,
 @@ -116,7 +108,7 @@
        return;
      }
  
 -  if (print && fp_print_get_image (print) &&
-+  if (fp_device_supports_capture (device) &&
++  if (fp_device_has_feature (device, FP_DEVICE_FEATURE_CAPTURE) &&
        print_image_save (print, "enrolled.pgm"))
      printf ("Wrote scanned image to enrolled.pgm\n");
  

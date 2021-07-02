@@ -33,7 +33,7 @@ Subject: [PATCH] Utilities: Add portable wrapper for setenv function
  
  #include "utilities.h"
  
-@@ -125,3 +126,15 @@
+@@ -126,3 +127,15 @@
  
    return i;
  }

@@ -2,13 +2,13 @@
 
 **Juan Carlos García Vázquez**
 
-+   Date: Apr 27, 2021.
++   Date: Jul 02, 2021.
 + E-Mail: gavajc@gmail.com
 
 # GENERAL INFO
 
-This is a cross compile libfprint project for version v1.90.7. The folder 
-libfprint-v1.90.7 contains the original sources from freedesktop gitlab repositories.
+This is a cross compile libfprint project for version v1.90.6, v1.90.7 & v1.92.0. The folder 
+libfprint-v1.92.0 contains the latest original sources from freedesktop gitlab repositories.
 
 The libfprint project was born as university project later the project continue as an
 open source. Is currently maintained by freedesktop.org.
@@ -17,13 +17,16 @@ I just created a few patches to compile and run on Windows systems. It's importa
 say that not all the library functionality is present in Windows. This is because the 
 architecture of the Linux systems is different to the Windows.
 
-For example: 
+Cases detected: 
 
 
         1.- udev rules do not exist in Windows, the library can use the udev rules only
             for Linux systems.
-        2.- The virtual device available to use only can be used in Linux because internally
-            use Unix signals.
+        2.- Some drivers not work on Windows. The elanspi not work in Windows because this drivers has
+            a udev dependency, a ioctl call and spidev dependency like struct spi_ioc_transfer.
+        3.- The hwdb and autosuspend not work in Windows because has a udev dependency.
+        4.- The virtual device available to use only can be used in Linux but not in Windows,
+            because internally use Unix signals.
 
 
 In general you can use the library for enroll, capture, verify, identify, fingerprints ...
@@ -65,6 +68,7 @@ The complete list of dependencies is:
         	Python
         	Meson
         	Cairo (opcional)
+        	GUdev (Only Linux for elanspi driver)
 
 
 Linux install dependencies commands (Based on Ubuntu systems):
@@ -98,6 +102,8 @@ Linux install dependencies commands (Based on Ubuntu systems):
         pip3 install meson
         	Cairo
         sudo apt install libcairo2-dev
+        	GUdev
+        sudo apt install gudev-1.0
 
 
 Windows install dependencies commands (Using MSYS2 Environment):
@@ -135,14 +141,14 @@ compiling the libfprint library.
         In Windows open a PowerShell console, In Linux a console and execute 
         the prepare.sh script and as parameter the libfprint source folder.
         
-        ./prepare.sh libfprint-v1.90.7
+        ./prepare.sh libfprint-v1.92.0
         
         If the sources were patched the script indicates it. If not then then
         sources will be patched. If all ok the script indicates it.
         
     2.- After patch the sources you can compile the libfprint library:
     
-        cd libfprint-v1.90.7
+        cd libfprint-v1.92.0
         meson buildir && cd builddir
         
         If all dependencies were installed the result of the meson buildir will be ok.
@@ -155,11 +161,18 @@ compiling the libfprint library.
         meson install
         
         The default directory for sources and library is: /usr/local/include /usr/local/lib/
+        
+        If you want to change the installation destination folder, before compile run:
+        
+        meson configure builddir/ -Dprefix=/usr/
+        
+        Where -Dprefix= is the destination folder
 
     4.- Execute the default libfprint library examples
     
-        Enroll --> Add new user an store the fingerprint local in disk or in device if support storage.
-        Verify --> Compare a previous enrolled fingerprint. If match or not match.
+        Enroll  --> Add new user an store the fingerprint local in disk or in device if support storage.
+        Verify  --> Compare a previous enrolled fingerprint. If match or not match.
+        Capture --> Capture a fingerprint and save into pgm file.
         
 # Usage
 
@@ -171,7 +184,7 @@ download from his webpage.
 Simple select your scanner device and select what driver do you want to install (WinUSB or LibUSBK).
 LibUSBK has some advantages over WINUSB.
 
-When you want to share your app in Windows systems, you have to share too, all DLL dependencies.
+When you want to share your app in Windows systems, you have to share too all DLL dependencies.
 You can use the script depends.bat in tools folder for do that. Only set the correctly paths
 according to MSYS2-MinGW64 installation. Or extract the list of manually.
 

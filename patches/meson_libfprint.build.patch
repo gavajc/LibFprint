@@ -1,11 +1,14 @@
 From: Juan Carlos García Vázquez <gavajc@gmail.com>
-Date: Sat, 30 Jan 2021 20:53:29 +0700
-Subject: [PATCH] libfprint-build: Add sources in build file for export bozorth algorithms.
+Date: Thu, 02 Jul 2021 09:40:50 +0800
+Subject: [PATCH] libfprint-build: Add sources in build file for export bozorth algorithms and enable/disable elanspi.
 
---- libfprint/meson.build	2021-01-31 19:26:16.661935000 -0600
-+++ libfprint/meson.build	2021-01-31 18:27:37.673898000 -0600
-@@ -18,6 +18,8 @@
+--- libfprint/meson.build	2021-06-30 08:58:12.000000000 -0500
++++ libfprint/meson.build	2021-07-02 09:36:27.440925007 -0500
+@@ -16,9 +16,10 @@
+     'fpi-print.c',
+     'fpi-ssm.c',
      'fpi-usb-transfer.c',
+-    'fpi-spi-transfer.c',
  ]
  
 +other_sources = ['fp-boz-algm.c']
@@ -13,16 +16,39 @@ Subject: [PATCH] libfprint-build: Add sources in build file for export bozorth a
  libfprint_public_headers = [
      'fp-context.h',
      'fp-device.h',
-@@ -43,6 +45,8 @@
-     'fpi-ssm.h',
+@@ -27,6 +28,8 @@
+     'fp-print.h',
  ]
  
 +libfprint_other_headers = ['fp-boz-algm.h']
 +
- nbis_sources = [
-     'nbis/bozorth3/bozorth3.c',
-     'nbis/bozorth3/bz_alloc.c',
-@@ -179,8 +183,6 @@
+ libfprint_private_headers = [
+     'fpi-assembling.h',
+     'fpi-byte-reader.h',
+@@ -41,7 +44,6 @@
+     'fpi-minutiae.h',
+     'fpi-print.h',
+     'fpi-usb-transfer.h',
+-    'fpi-spi-transfer.h',
+     'fpi-ssm.h',
+ ]
+ 
+@@ -157,9 +159,11 @@
+     if driver == 'elan'
+         drivers_sources += [ 'drivers/elan.c' ]
+     endif
+-	if driver == 'elanspi'
+-		drivers_sources += [ 'drivers/elanspi.c' ]
+-	endif
++    if driver == 'elanspi'
++        drivers_sources += [ 'drivers/elanspi.c' ]
++        libfprint_private_sources += [ 'fpi-spi-transfer.c' ]
++        libfprint_private_headers += [ 'fpi-spi-transfer.h' ]
++    endif
+     if driver == 'virtual_image'
+         drivers_sources += [ 'drivers/virtual-image.c' ]
+     endif
+@@ -201,8 +205,6 @@
      drivers_sources += ['drivers/aes3k.c' ]
  endif
  
@@ -31,7 +57,7 @@ Subject: [PATCH] libfprint-build: Add sources in build file for export bozorth a
  fp_enums = gnome.mkenums_simple('fp-enums',
      sources: libfprint_public_headers,
      install_header: true,
-@@ -282,7 +284,7 @@
+@@ -305,7 +307,7 @@
          gusb_dep,
      ])
  

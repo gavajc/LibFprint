@@ -1,0 +1,40 @@
+From: Juan Carlos García Vázquez <gavajc@gmail.com>
+Date: Thu, 02 Jul 2021 09:40:50 +0800
+Subject: [PATCH] libfprint-fpi-ssm: Enable or disable elanspi transfers. Disable on Windows systems
+
+--- libfprint/fpi-ssm.h	2021-06-30 08:58:12.000000000 -0500
++++ libfprint/fpi-ssm.h	2021-07-02 10:13:46.476708293 -0500
+@@ -110,6 +110,8 @@
+                                                 gpointer        weak_ptr,
+                                                 GError         *error);
+ 
++#ifndef __MSYS__
++
+ typedef struct _FpiSpiTransfer FpiSpiTransfer;
+ 
+ void fpi_ssm_spi_transfer_cb (FpiSpiTransfer *transfer,
+@@ -120,5 +122,6 @@
+                                                 FpDevice       *device,
+                                                 gpointer        weak_ptr,
+                                                 GError         *error);
++#endif
+ 
+ G_DEFINE_AUTOPTR_CLEANUP_FUNC (FpiSsm, fpi_ssm_free)
+
+--- libfprint/fpi-ssm.c	2021-06-30 08:58:12.000000000 -0500
++++ libfprint/fpi-ssm.c	2021-07-02 10:15:08.688615817 -0500
+@@ -695,6 +695,8 @@
+   fpi_ssm_usb_transfer_cb (transfer, device, weak_ptr, error);
+ }
+ 
++#ifndef __MSYS__
++
+ /**
+  * fpi_ssm_spi_transfer_cb:
+  * @transfer: a #FpiSpiTransfer
+@@ -747,3 +749,5 @@
+ 
+   fpi_ssm_spi_transfer_cb (transfer, device, weak_ptr, error);
+ }
++
++#endif
